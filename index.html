@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Gallery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: Green;
+        }
+        .gallery-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+        .gallery {
+            display: flex;
+            transition: transform 0.3s ease-out;
+        }
+        .gallery img {
+            width: 100vw;
+            height: 100vh;
+            object-fit: contain; /* Ensures full image fits without cropping */
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+
+<div class="gallery-container">
+    <div class="gallery">
+        <img src="WIN_20250318_10_52_07_Pro.jpg" alt="Image 1">
+        <img src="WIN_20250318_10_52_05_Pro.jpg" alt="Image 2">
+        <img src="WIN_20250318_10_52_02_Pro.jpg" alt="Image 3">
+    </div>
+</div>
+
+<script>
+    const gallery = document.querySelector(".gallery");
+    let currentIndex = 0;
+    let startX = 0;
+    let isAnimating = false;
+
+    document.addEventListener("touchstart", (e) => {
+        startX = e.touches[0].clientX;
+    });
+
+    document.addEventListener("touchend", (e) => {
+        let endX = e.changedTouches[0].clientX;
+        if (endX < startX - 50) {
+            nextImage();
+        } else if (endX > startX + 50) {
+            prevImage();
+        }
+    });
+
+    function animateGallery(targetIndex) {
+        if (isAnimating) return;
+        isAnimating = true;
+        
+        let start = performance.now();
+        let initialPosition = -currentIndex * window.innerWidth;
+        let targetPosition = -targetIndex * window.innerWidth;
+        
+        function animate(time) {
+            let progress = Math.min((time - start) / 300, 1);
+            let ease = progress * (2 - progress); // Smooth easing
+            gallery.style.transform = translateX(${initialPosition + (targetPosition - initialPosition) * ease}px);
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                isAnimating = false;
+                currentIndex = targetIndex;
+            }
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    function nextImage() {
+        if (currentIndex < gallery.children.length - 1) {
+            animateGallery(currentIndex + 1);
+        }
+    }
+
+    function prevImage() {
+        if (currentIndex > 0) {
+            animateGallery(currentIndex - 1);
+        }
+    }
+</script>
+
+</body>
+</html>
